@@ -121,6 +121,90 @@ CREATE TABLE Viewing (
 INSERT INTO Viewing (clientNo, propertyNo, viewDate, comment) VALUES
 ('CR56', 'PA14', '2004-05-24', 'too small'),
 ('CR76', 'PG4', '2004-04-20', 'too remote'),
-('CR56', 'PG4', '2004-04-26', 'no dining room'),
-('CR62', 'PA14', '2004-05-14', 'too small'),
-('CR56', 'PG36', '2004-04-28', 'no dining room');
+('CR56', 'PG4', '2004-05-26', NULL),
+('CR62', 'PA14', '2004-05-14', 'no dining room'),
+('CR56', 'PG36', '2004-04-28', NULL);
+
+
+
+
+
+
+
+------------------ALL ANSWERS------------------------
+
+-- List full details of all staff.
+-- 1.list full details of Staff
+SELECT * FROM Staff;
+
+-- 2.Produce a list of salaries for all staff, showing only the staff number, the first and last names, and the salary details.
+SELECT staffNo, FName, LName, salary FROM staff;
+
+-- 3.Produce a list of monthly salaries for all staff, showing the staff number, the first and last names, and the salary details.
+SELECT StaffNo, FName, LName, salary / 12 AS monthly_salary FROM Staff;
+
+-- 4.List all staff with a salary greater than £10,000.
+SELECT * FROM Staff WHERE salary > 10000;
+
+-- 5.List all staff with a salary between £20,000 and £30,000.
+SELECT * FROM Staff WHERE salary BETWEEN 20000 AND 30000;
+
+-- 6.Produce a list of salaries for all staff, showing only the staff number, name, and salary details.
+SELECT StaffNo, CONCAT(fName, ' ', lName) AS Name, salary FROM Staff;
+
+-- 7.List all managers and supervisors.
+SELECT * FROM Staff WHERE position IN ('Manager', 'Supervisor');
+
+-- 8.List all cities where there is either a branch office or a property for rent.
+SELECT DISTINCT city FROM Branch
+UNION
+SELECT DISTINCT city FROM PropertyForRent;
+
+-- 9.List all cities where there is a branch office but no properties for rent.
+SELECT city FROM Branch
+WHERE city NOT IN (SELECT city FROM PropertyForRent);
+
+-- 10.List all cities where there is both a branch office and at least one property for rent.
+SELECT city FROM Branch
+WHERE city IN (SELECT city FROM PropertyForRent);
+
+-- 11,List the names and comments of all clients who have viewed a property for rent.
+SELECT Client.fName, Client.lName, Viewing.comment
+FROM Viewing
+JOIN Client ON Viewing.clientNo = Client.clientNo;
+
+-- 12.Produce a status report on property Viewings.
+SELECT propertyNo, COUNT(clientNo) AS num_viewings, COUNT(comment) AS num_comments
+FROM Viewing
+GROUP BY propertyNo;
+
+-- 13.List complete details of all staff who work at the branch in Glasgow.
+SELECT Staff.* FROM Staff
+JOIN Branch ON Staff.branchNo = Branch.branchNo
+WHERE Branch.city = 'Glasgow';
+
+-- 14.Find all owners with the string 'Glasgow' in their address.
+SELECT * FROM PrivateOwner WHERE address LIKE '%Glasgow%';
+
+-- 15,How many properties cost more than £350 per month to rent?
+SELECT COUNT(*) FROM PropertyForRent WHERE rent > 350;
+
+-- 16.Find the minimum, maximum, and average staff salary.
+SELECT MIN(salary) AS min_salary,
+ MAX(salary) AS max_salary,
+  AVG(salary) AS avg_salary FROM staff;
+SELECT MIN(salary),MAX(salary),AVG(salary) FROM Staff;
+
+-- 17.Find the number of staff working in each branch and the sum of their salaries.
+SELECT branchNo, COUNT(staffNo) AS num_staff, SUM(salary) AS total_salary
+FROM staff
+GROUP BY branchNo;
+
+-- 18.List the details of all viewings on property PG4 where a comment has not been supplied.
+SELECT * FROM viewing WHERE propertyNo = 'PG4' AND comment IS NULL;
+
+19.Produce a list of salaries for all staff, arranged in descending order of salary.
+SELECT staffNo, FName, LName, salary FROM staff ORDER BY salary DESC;
+
+--20.Produce a list of properties arranged in order of property type.
+SELECT * FROM property ORDER BY type;
