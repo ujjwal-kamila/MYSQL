@@ -273,3 +273,56 @@ PropertyForRent.propertyNo
 FROM PropertyForRent
 JOIN Staff ON PropertyForRent.staffNo = Staff.staffNo
 JOIN Branch ON Staff.branchNo = Branch.branchNo;
+
+
+--- Day 5 ----------------------------
+
+-- 31. For each branch, list the numbers and names of staff who manage properties, including the city in which the branch is located and the properties that the staff manage.
+SELECT branch.city, branch.branchNo, staff.staffNo, staff.FName, staff.LName, property.propertyNo
+FROM property
+JOIN staff ON property.branchNo = staff.branchNo
+JOIN branch ON branch.branchNo = staff.branchNo;
+
+-- 32. Find the number of properties handled by each staff member.
+SELECT staff.staffNo, staff.FName, staff.LName, COUNT(property.propertyNo) AS num_properties
+FROM property
+JOIN staff ON property.branchNo = staff.branchNo
+GROUP BY staff.staffNo;
+
+-- 33. List all branch offices and any properties that are in the same city.
+SELECT branch.city, branch.branchNo, branch.address, property.propertyNo, property.type
+FROM branch
+LEFT JOIN property ON branch.city = property.city;
+
+-- 34. List the branch offices and properties that are in the same city along with any unmatched branches or properties.
+SELECT branch.city AS branch_city, branch.branchNo, branch.address, property.city AS property_city, property.propertyNo, property.type
+FROM branch
+FULL OUTER JOIN property ON branch.city = property.city;
+
+-- 35. Create a table OwnersPropertyCount (ownerNo, FName, LName, noOfProperty) and populate it from the existing tables.
+CREATE TABLE OwnersPropertyCount AS
+SELECT owner.ownerNo, owner.FName, owner.LName, COUNT(property.propertyNo) AS noOfProperty
+FROM owner
+JOIN property ON owner.ownerNo = property.ownerNo
+GROUP BY owner.ownerNo;
+
+-- 36. Give all staff a 3% pay increase.
+UPDATE staff
+SET salary = salary * 1.03;
+
+-- 37. Give all Managers a 5% pay increase.
+UPDATE staff
+SET salary = salary * 1.05
+WHERE position = 'Manager';
+
+-- 39. Promote David Ford (staffNo = 'SG14') to Manager and change his salary to £18,000.
+UPDATE staff
+SET position = 'Manager', salary = 18000
+WHERE staffNo = 'SG14';
+
+-- 40. Delete all viewings that relate to property PG4.
+DELETE FROM viewing
+WHERE propertyNo = 'PG4';
+
+-- Delete all rows from the Viewing table.
+DELETE FROM viewing;
