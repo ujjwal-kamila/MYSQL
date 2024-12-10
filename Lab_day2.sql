@@ -131,7 +131,9 @@ INSERT INTO Viewing (clientNo, propertyNo, viewDate, comment) VALUES
 
 
 
-------------------ALL ANSWERS------------------------
+-- ALL ANSWERS------------------------
+
+-- Day 1-------------------------------------------------------------
 
 -- List full details of all staff.
 -- 1.list full details of Staff
@@ -168,6 +170,8 @@ WHERE city NOT IN (SELECT city FROM PropertyForRent);
 SELECT city FROM Branch
 WHERE city IN (SELECT city FROM PropertyForRent);
 
+--Day 3 -----------------------------------------------------------------------------------------------
+
 -- 11,List the names and comments of all clients who have viewed a property for rent.
 SELECT Client.fName, Client.lName, Viewing.comment
 FROM Viewing
@@ -203,8 +207,69 @@ GROUP BY branchNo;
 -- 18.List the details of all viewings on property PG4 where a comment has not been supplied.
 SELECT * FROM viewing WHERE propertyNo = 'PG4' AND comment IS NULL;
 
-19.Produce a list of salaries for all staff, arranged in descending order of salary.
+-- 19.Produce a list of salaries for all staff, arranged in descending order of salary.
 SELECT staffNo, FName, LName, salary FROM staff ORDER BY salary DESC;
 
---20.Produce a list of properties arranged in order of property type.
+-- 20.Produce a list of properties arranged in order of property type.
 SELECT * FROM property ORDER BY type;
+
+-- Day 4 -----------------------------------------------------------------------------------------------
+
+-- 21. How many different properties were viewed in May 2004?
+SELECT COUNT(DISTINCT propertyNo) AS properties_viewed
+FROM Viewing
+WHERE MONTH(viewDate) = 5 AND YEAR(viewDate) = 2004;
+
+-- 22. Find the total number of Managers and the sum of their salaries.
+SELECT COUNT(*) AS num_managers, SUM(salary) AS total_salary
+FROM Staff
+WHERE position = 'Manager';
+
+-- 23. For each branch office with more than one member of staff, find the number of staff working in each branch and the sum of their salaries.
+SELECT branchNo, COUNT(staffNo) AS num_staff, SUM(salary) AS total_salary
+FROM Staff
+GROUP BY branchNo
+HAVING COUNT(staffNo) > 1;
+
+-- 24. List the staff who work in the branch at '163 Main St'.
+SELECT Staff.*
+FROM Staff
+JOIN Branch ON Staff.branchNo = Branch.branchNo
+WHERE Branch.street = '163 Main St';
+
+-- 25. List all staff whose salary is greater than the average salary, and show by how much their salary is greater than the average.
+SELECT staffNo, fName, lName, salary, 
+salary - (SELECT AVG(salary) FROM Staff) AS above_average
+FROM Staff
+WHERE salary > (SELECT AVG(salary) FROM Staff);
+
+-- 26. List the properties that are handled by staff who work in the branch at '163 Main St'.
+SELECT PropertyForRent.*
+FROM PropertyForRent
+JOIN Staff ON PropertyForRent.staffNo = Staff.staffNo
+JOIN Branch ON Staff.branchNo = Branch.branchNo
+WHERE Branch.street = '163 Main St';
+
+-- 27. Find all staff whose salary is larger than the salary of at least one member of staff at branch B003.
+SELECT *
+FROM Staff
+WHERE salary > (SELECT MIN(salary) FROM Staff WHERE branchNo = 'B003');
+
+-- 28. Find all staff whose salary is larger than the salary of every member of staff at branch B003.
+SELECT *
+FROM Staff
+WHERE salary > (SELECT MAX(salary) FROM Staff WHERE branchNo = 'B003');
+
+-- 29. List the names of all clients who have viewed a property along with any comment supplied.
+SELECT Client.fName, Client.lName, Viewing.comment
+FROM Viewing
+JOIN Client ON Viewing.clientNo = Client.clientNo
+WHERE Viewing.comment IS NOT NULL;
+
+-- 30. For each branch office, list the numbers and names of staff who manage properties and the properties that they manage.
+SELECT Branch.branchNo, Branch.street AS branch_address, 
+Staff.staffNo, Staff.fName, Staff.lName, 
+PropertyForRent.propertyNo
+FROM PropertyForRent
+JOIN Staff ON PropertyForRent.staffNo = Staff.staffNo
+JOIN Branch ON Staff.branchNo = Branch.branchNo;
