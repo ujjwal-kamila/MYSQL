@@ -106,6 +106,6 @@ CREATE TABLE Viewing (
 INSERT INTO Viewing (clientNo, propertyNo, viewDate, comment) VALUES
 ('CR56', 'PA14', '2004-05-24', 'too small'),
 ('CR76', 'PG4', '2004-04-20', 'too remote'),
-('CR56', 'PG4', '2004-04-26', 'no dining room'),
-('CR62', 'PA14', '2004-05-14', 'too small'),
-('CR56', 'PG36', '2004-04-28', 'no dining room');
+('CR56', 'PG4', '2004-05-26', NULL),
+('CR62', 'PA14', '2004-05-14', 'no dining room'),
+('CR56', 'PG36', '2004-04-28', NULL);
