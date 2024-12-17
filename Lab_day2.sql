@@ -302,7 +302,7 @@ PropertyForRent.city AS property_city, PropertyForRent.propertyNo, PropertyForRe
 LEFT JOIN PropertyForRent ON Branch.city = PropertyForRent.city UNION
 SELECT Branch.city AS branch_city, Branch.branchNo, Branch.street AS address, 
 PropertyForRent.city AS property_city, PropertyForRent.propertyNo, PropertyForRent.type FROM PropertyForRent
-LEFT JOIN Branch ON Branch.city = PropertyForRent.city;
+Right JOIN Branch ON Branch.city = PropertyForRent.city;
 
 -- 35. Create a table OwnersPropertyCount (ownerNo, FName, LName, noOfProperty) 
 -- and populate it from the existing tables.
@@ -374,3 +374,15 @@ JOIN Branch ON Registration.branchNo = Branch.branchNo WHERE Client.maxRent > 40
 -- 5 Find the max salary for each BranchNo
 SELECT branchNo, MAX(salary)FROM  Staff
 GROUP BY branchNo;
+
+
+
+
+
+#34 List the branch offices and properties that are in the same city along with any unmatched branches or properties. 
+
+SELECT Branch.city, Branch.branchNo, PropertyForRent.propertyNo FROM Branch 
+LEFT JOIN PropertyForRent ON Branch.city = PropertyForRent.city
+UNION
+SELECT Branch.city, Branch.branchNo, PropertyForRent.propertyNo FROM PropertyForRent
+RIGHT JOIN Branch ON Branch.city = PropertyForRent.city;
