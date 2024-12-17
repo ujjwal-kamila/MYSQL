@@ -370,3 +370,7 @@ JOIN Branch b ON r.branchNo = b.branchNo;
 SELECT Client.clientNo,Client.fName,Client.lName,Branch.street,Branch.city
 FROM Client JOIN Registration ON Client.clientNo = Registration.clientNo
 JOIN Branch ON Registration.branchNo = Branch.branchNo WHERE Client.maxRent > 400;
+
+-- 5 Find the max salary for each BranchNo
+SELECT branchNo, MAX(salary)FROM  Staff
+GROUP BY branchNo;
