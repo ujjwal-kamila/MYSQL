@@ -221,108 +221,152 @@ FROM Viewing
 WHERE MONTH(viewDate) = 5 AND YEAR(viewDate) = 2004;
 
 -- 22. Find the total number of Managers and the sum of their salaries.
-SELECT COUNT(*) AS num_managers, SUM(salary) AS total_salary
-FROM Staff
+SELECT COUNT(*) AS num_managers, SUM(salary) AS total_salary FROM Staff
 WHERE position = 'Manager';
 
 -- 23. For each branch office with more than one member of staff, find the number of staff working in each branch and the sum of their salaries.
-SELECT branchNo, COUNT(staffNo) AS num_staff, SUM(salary) AS total_salary
-FROM Staff
+SELECT branchNo, COUNT(staffNo) AS num_staff, SUM(salary) AS total_salary FROM Staff
 GROUP BY branchNo
 HAVING COUNT(staffNo) > 1;
 
 -- 24. List the staff who work in the branch at '163 Main St'.
-SELECT Staff.*
-FROM Staff
+SELECT Staff.* FROM Staff
 JOIN Branch ON Staff.branchNo = Branch.branchNo
 WHERE Branch.street = '163 Main St';
 
 -- 25. List all staff whose salary is greater than the average salary, and show by how much their salary is greater than the average.
 SELECT staffNo, fName, lName, salary, 
-salary - (SELECT AVG(salary) FROM Staff) AS above_average
-FROM Staff
+salary - (SELECT AVG(salary) FROM Staff) AS above_average FROM Staff
 WHERE salary > (SELECT AVG(salary) FROM Staff);
 
 -- 26. List the properties that are handled by staff who work in the branch at '163 Main St'.
-SELECT PropertyForRent.*
-FROM PropertyForRent
+SELECT PropertyForRent.* FROM PropertyForRent
 JOIN Staff ON PropertyForRent.staffNo = Staff.staffNo
 JOIN Branch ON Staff.branchNo = Branch.branchNo
 WHERE Branch.street = '163 Main St';
 
 -- 27. Find all staff whose salary is larger than the salary of at least one member of staff at branch B003.
-SELECT *
-FROM Staff
+SELECT * FROM Staff
 WHERE salary > (SELECT MIN(salary) FROM Staff WHERE branchNo = 'B003');
 
 -- 28. Find all staff whose salary is larger than the salary of every member of staff at branch B003.
-SELECT *
-FROM Staff
+SELECT * FROM Staff
 WHERE salary > (SELECT MAX(salary) FROM Staff WHERE branchNo = 'B003');
 
 -- 29. List the names of all clients who have viewed a property along with any comment supplied.
-SELECT Client.fName, Client.lName, Viewing.comment
-FROM Viewing
+SELECT Client.fName, Client.lName, Viewing.comment FROM Viewing
 JOIN Client ON Viewing.clientNo = Client.clientNo
 WHERE Viewing.comment IS NOT NULL;
 
+SELECT client.FName, client.LName, viewing.propertyNo, viewing.comment
+FROM viewing
+JOIN client ON viewing.clientNo = client.clientNo;
+
 -- 30. For each branch office, list the numbers and names of staff who manage properties and the properties that they manage.
-SELECT Branch.branchNo, Branch.street AS branch_address, 
-Staff.staffNo, Staff.fName, Staff.lName, 
-PropertyForRent.propertyNo
+-- SELECT Branch.branchNo, Branch.street AS branch_address, 
+-- Staff.staffNo, Staff.fName, Staff.lName, 
+-- PropertyForRent.propertyNo
+-- FROM PropertyForRent
+-- JOIN Staff ON PropertyForRent.staffNo = Staff.staffNo
+-- JOIN Branch ON Staff.branchNo = Branch.branchNo;
+
+SELECT Branch.branchNo, branch.street, staff.staffNo, staff.FName, staff.LName, PropertyForRent.propertyNo
 FROM PropertyForRent
 JOIN Staff ON PropertyForRent.staffNo = Staff.staffNo
-JOIN Branch ON Staff.branchNo = Branch.branchNo;
+JOIN Branch ON Branch.branchNo = Staff.branchNo;
+
 
 
 --- Day 5 ----------------------------
-
--- 31. For each branch, list the numbers and names of staff who manage properties, including the city in which the branch is located and the properties that the staff manage.
-SELECT branch.city, branch.branchNo, staff.staffNo, staff.FName, staff.LName, property.propertyNo
-FROM property
-JOIN staff ON property.branchNo = staff.branchNo
-JOIN branch ON branch.branchNo = staff.branchNo;
+-- 31. For each branch, list the numbers and names of staff who manage properties, 
+-- including the city in which the branch is located and the properties that the staff manage.
+SELECT Branch.city, Branch.branchNo, Staff.staffNo, Staff.fName, Staff.lName, PropertyForRent.propertyNo
+FROM PropertyForRent
+JOIN Staff ON PropertyForRent.staffNo = Staff.staffNo
+JOIN Branch ON Branch.branchNo = Staff.branchNo;
 
 -- 32. Find the number of properties handled by each staff member.
-SELECT staff.staffNo, staff.FName, staff.LName, COUNT(property.propertyNo) AS num_properties
-FROM property
-JOIN staff ON property.branchNo = staff.branchNo
-GROUP BY staff.staffNo;
+SELECT Staff.staffNo, Staff.fName, Staff.lName, COUNT(PropertyForRent.propertyNo) AS num_properties
+FROM PropertyForRent
+JOIN Staff ON PropertyForRent.staffNo = Staff.staffNo
+GROUP BY Staff.staffNo, Staff.fName, Staff.lName;
 
 -- 33. List all branch offices and any properties that are in the same city.
-SELECT branch.city, branch.branchNo, branch.address, property.propertyNo, property.type
-FROM branch
-LEFT JOIN property ON branch.city = property.city;
+SELECT Branch.city, Branch.branchNo, Branch.street AS address, PropertyForRent.propertyNo, PropertyForRent.type
+FROM Branch
+LEFT JOIN PropertyForRent ON Branch.city = PropertyForRent.city;
 
 -- 34. List the branch offices and properties that are in the same city along with any unmatched branches or properties.
-SELECT branch.city AS branch_city, branch.branchNo, branch.address, property.city AS property_city, property.propertyNo, property.type
-FROM branch
-FULL OUTER JOIN property ON branch.city = property.city;
+SELECT Branch.city AS branch_city, Branch.branchNo, Branch.street AS address, 
+PropertyForRent.city AS property_city, PropertyForRent.propertyNo, PropertyForRent.type FROM Branch
+LEFT JOIN PropertyForRent ON Branch.city = PropertyForRent.city UNION
+SELECT Branch.city AS branch_city, Branch.branchNo, Branch.street AS address, 
+PropertyForRent.city AS property_city, PropertyForRent.propertyNo, PropertyForRent.type FROM PropertyForRent
+LEFT JOIN Branch ON Branch.city = PropertyForRent.city;
 
--- 35. Create a table OwnersPropertyCount (ownerNo, FName, LName, noOfProperty) and populate it from the existing tables.
+-- 35. Create a table OwnersPropertyCount (ownerNo, FName, LName, noOfProperty) 
+-- and populate it from the existing tables.
 CREATE TABLE OwnersPropertyCount AS
-SELECT owner.ownerNo, owner.FName, owner.LName, COUNT(property.propertyNo) AS noOfProperty
-FROM owner
-JOIN property ON owner.ownerNo = property.ownerNo
-GROUP BY owner.ownerNo;
+SELECT PrivateOwner.ownerNo, PrivateOwner.fName, PrivateOwner.lName, COUNT(PropertyForRent.propertyNo) AS noOfProperty
+FROM PrivateOwner
+JOIN PropertyForRent ON PrivateOwner.ownerNo = PropertyForRent.ownerNo
+GROUP BY PrivateOwner.ownerNo, PrivateOwner.fName, PrivateOwner.lName;
 
 -- 36. Give all staff a 3% pay increase.
-UPDATE staff
+UPDATE Staff
 SET salary = salary * 1.03;
 
 -- 37. Give all Managers a 5% pay increase.
-UPDATE staff
+UPDATE Staff
 SET salary = salary * 1.05
 WHERE position = 'Manager';
 
--- 39. Promote David Ford (staffNo = 'SG14') to Manager and change his salary to £18,000.
-UPDATE staff
+-- 38. Promote David Ford (staffNo = 'SG14') to Manager and change his salary to £18,000.
+UPDATE Staff
 SET position = 'Manager', salary = 18000
 WHERE staffNo = 'SG14';
 
--- 40. Delete all viewings that relate to property PG4.
-DELETE FROM viewing
+-- 39. Delete all viewings that relate to property PG4.
+DELETE FROM Viewing
 WHERE propertyNo = 'PG4';
 
--- Delete all rows from the Viewing table.
-DELETE FROM viewing;
+-- 40. Delete all rows from the Viewing table.
+DELETE FROM Viewing;
+
+
+
+
+-- #1.Find Out staff Details who work for Same Branch which Have more than 1 Employee.
+SELECT *FROM Staff WHERE branchNo IN (
+SELECT branchNo FROM Staff GROUP BY branchNo
+HAVING COUNT(staffNo) > 1);
+
+
+-- #2.Create a View Which Display BranchNo,StaffNo.Position & ClientNo
+CREATE VIEW custom AS
+Select s.branchNo,s.staffNo,s.position,c.clientNo
+From Staff s
+JOIN Registration c ON s.staffNo = c.staffNo;
+
+Select * FROM custom;
+
+--  Another ans 
+CREATE VIEW BranchStaffClientView AS
+SELECT Staff.branchNo,Staff.staffNo,Staff.position,Registration.clientNo
+FROM Staff JOIN Registration ON Staff.staffNo = Registration.staffNo;
+SELECT * FROM BranchStaffClientView;
+
+-- #3.SHOW all details from Cross Product of Staff,Registration
+SELECT *
+FROM Staff,Registration;
+
+-- #4.Find the Street & city of the Branch for ALL Clients whose Max Rent > 400
+SELECT c.clientNo,c.fName,c.lName,b.branchNo, b.street,b.city
+FROM Client c
+JOIN Registration r ON c.clientNo = r.clientNo AND maxRent > 400
+JOIN Branch b ON r.branchNo = b.branchNo;
+
+
+SELECT Client.clientNo,Client.fName,Client.lName,Branch.street,Branch.city
+FROM Client JOIN Registration ON Client.clientNo = Registration.clientNo
+JOIN Branch ON Registration.branchNo = Branch.branchNo WHERE Client.maxRent > 400;
