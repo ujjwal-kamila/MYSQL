@@ -393,18 +393,22 @@ GROUP BY branchNo;
 # Lab Day 6 Exercises 
 
 
--- 1. Find Second high Salary each BranchNo with Designation
-SELECT branchNo, position, salary FROM (
-SELECT branchNo, position, salary,ROW_NUMBER() OVER (PARTITION BY branchNo ORDER BY salary DESC) 
-AS salary_rankFROM Staff) 
-AS RankedSalaries WHERE salary_rank = 2
+-- 1. Find Second Highest Salary in each BranchNo with Designation
+SELECT branchNo, position, salary
+FROM (
+    SELECT branchNo, position, salary, ROW_NUMBER() 
+    OVER (PARTITION BY branchNo ORDER BY salary DESC) AS salary_rank FROM Staff
+) AS RankedSalaries
+WHERE salary_rank = 2
 ORDER BY branchNo, position;
+
 
 
 
 -- 2. Find the Date of Join for High Salary Holder Staff
 SELECT r.dateJoined
-FROM Staff s JOIN Registration r ON s.staffNo = r.staffNo
+FROM Staff s 
+JOIN Registration r ON s.staffNo = r.staffNo
 WHERE s.salary = (SELECT MAX(salary) FROM Staff);
 
 
@@ -418,7 +422,8 @@ JOIN Viewing V ON P.propertyNo = V.propertyNo;
 
 -- 4. Find the Staff works in Each Branch with position 
 SELECT branchNo,staffNo,fName,lName,position
-FROM Staff ORDER BY branchNo, staffNo;
+FROM Staff 
+ORDER BY branchNo, staffNo;
 
 -- 5.Alter table Staff and add location attribute with values 
 ALTER TABLE Staff
@@ -442,13 +447,16 @@ JOIN Branch b ON s.branchNo = b.branchNo
 WHERE b.city = (
     SELECT b2.city
     FROM Branch b2
-    WHERE b2.branchNo = s.branchNo
-);
+    WHERE b2.branchNo = s.branchNo);
+
+    
 -- 7.Find room,type,rent,propertyno ,city,branchno, where postcode is same fro branchno & proprtyno
 SELECT pfr.propertyNo, pfr.city, pfr.branchNo, pfr.type, pfr.rooms, pfr.rent
 FROM PropertyForRent pfr
 JOIN Branch b ON pfr.postcode = b.postcode
 WHERE pfr.branchNo = b.branchNo;
+
+
 -- 8.Find the details of owners who have maximum property
 SELECT DISTINCT po.ownerNo, po.fName, po.lName, po.address, po.telNo
 FROM PrivateOwner po
@@ -457,8 +465,7 @@ WHERE po.ownerNo = (
     FROM PropertyForRent pfr
     GROUP BY pfr.ownerNo
     ORDER BY COUNT(pfr.propertyNo) DESC
-    LIMIT 1
-);
+    LIMIT 1);
 
 -- 9.Find the details of client where fName starts with 'M'
 SELECT clientNo, fName, lName, telNo, prefType, maxRent
