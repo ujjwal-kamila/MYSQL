@@ -1,6 +1,11 @@
+-- Create three users and execute queries to verify their access permissions based on assigned privileges.
+
 -- Create a Database
 create database TestDB;
+use TestDB;
+
 SHOW PROCESSLIST;
+
 
 
 -- check user
