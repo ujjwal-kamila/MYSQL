@@ -8,8 +8,11 @@ SHOW PROCESSLIST;
 
 
 
+
+
 -- check user
 select user ,host from mysql.user
+
 
 
 -- Create 3 users for that database 
@@ -28,6 +31,7 @@ GRANT ALL PRIVILEGES ON TestDB.* TO 'user1'@'localhost';
 GRANT SELECT ON TestDB.* TO 'user2'@'localhost';
 GRANT INSERT, UPDATE, DELETE ON TestDB.* TO 'user3'@'localhost';
 
+-- GRANT or REVOKE changes (apply changes to all users ).
 FLUSH PRIVILEGES;
 
 SHOW GRANTS FOR 'user1'@'localhost';
@@ -38,6 +42,8 @@ SHOW GRANTS FOR 'user3'@'localhost';
 -- Log in as user1 (Admin):
 
 mysql -u user1 -p
+
+mysql -h 127.0.0.1 -P 3306 -u root -p"Ujjwal@19112004" --ssl-mode=DISABLED
 
 -- Log in as user2 (Read-Only User):
 
@@ -69,26 +75,39 @@ UPDATE students SET branch = 'IT' WHERE student_id = 101;
 -- User 1: Deleting data
 DELETE FROM students WHERE student_id = 101;
 
--- User 1: Creating another table (to check admin privileges)
+-- User 1: Creating another table (to check admin privileges) and insert values . 
 CREATE TABLE departments (
     department_id INT PRIMARY KEY,
     name VARCHAR(50)
 );
 
+INSERT INTO departments (department_id, name)VALUES
+(1, 'Computer Science'),
+(2, 'Information Technology'),  
+(3, 'Electrical Engineering');
 
 
 
 
 
 
--- User 2: Viewing the data
+-- User 2: login and  Viewing the data
 SELECT * FROM students;
 
--- User 2: Cannot Insert, Update, or Delete
--- INSERT INTO students (student_id, name, age, branch)  -- Will be denied
--- UPDATE students SET branch = 'ECE' WHERE student_id = 101;    -- Will be denied
--- DELETE FROM students WHERE student_id = 101;                    -- Will be denied
 
+-- User 2: Trying to insert data (Will throw an error)
+INSERT INTO students (student_id, name, age, branch)  
+VALUES (103, 'Alice Brown', 22, 'Civil');
+
+-- User 2: Trying to update data (Will throw an error)
+UPDATE students SET branch = 'ECE' WHERE student_id = 101;
+
+-- User 2: Trying to delete data (Will throw an error)
+DELETE FROM students WHERE student_id = 101;
+
+-- User 2: Trying to insert into departments table (Will throw an error)
+INSERT INTO departments (department_id, name)  
+VALUES (4, 'Biotechnology');
 
 
 
@@ -100,11 +119,14 @@ SELECT * FROM students;
 
 -- User 3: Inserting new data
 INSERT INTO students (student_id, name, age, branch)
-VALUES (102, 'Jane Smith', 21, 'ECE');
+VALUES (105, 'Aashiq Rahaman', 22, 'IT');
+
+INSERT INTO students (student_id, name, age, branch)
+VALUES (110, 'Rudra Das', 23, 'CSE');
 
 -- User 3: Updating data
-UPDATE students SET branch = 'ME' WHERE student_id = 102;
+UPDATE students SET branch = 'CSE' WHERE student_id = 105;
 
 -- User 3: Deleting data
-DELETE FROM students WHERE student_id = 102;
+DELETE FROM students WHERE student_id = 105;
 
